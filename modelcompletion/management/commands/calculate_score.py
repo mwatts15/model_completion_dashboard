@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.core.management.base import BaseCommand
 import PyOpenWorm as P
 from random import randint
@@ -9,15 +10,15 @@ class Command(BaseCommand):
 
 
     def scoring_ionchannels(self):
-        print 'calculating ion channel completion scores'
+        print('calculating ion channel completion scores')
         for ch in P.Channel().load():
             channel = IonChannel(name=ch.name(),completion=randint(0,5))
             channel.save()
-        print 'done'
+        print('done')
 
 
     def scoring_neurons(self):
-        print 'calculating neuron completion scores'
+        print('calculating neuron completion scores')
         score=0
         for n in P.Neuron().load():
             score = 0
@@ -40,10 +41,10 @@ class Command(BaseCommand):
             score = int((float(score)/(7+5*len(n.channel())))*float(5));
             neuron = Neuron(name=n.name(),completion=score)
             neuron.save()
-        print 'done'
+        print('done')
 
     def scoring_muscles(self):
-        print 'calculating muscle completion scores'
+        print('calculating muscle completion scores')
         score=0
         for m in P.Muscle().load():
             score =0
@@ -56,7 +57,7 @@ class Command(BaseCommand):
             score = int((float(score)/(2+5*len(m.channel())))*float(5));
             muscle= Muscle(name=m.name(),completion=score)
             muscle.save()
-        print 'done'
+        print('done')
 
     def Del_Neuron(self):
         Neuron.objects.all().delete()
@@ -69,14 +70,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         P.connect()
-        print 'clearing data'
+        print('clearing data')
         self.Del_Neuron()
         self.Del_Muscle()
         self.Del_IonChannel()
-        print 'done'
-        print "calculating scores"
+        print('done')
+        print('calculating scores')
         self.scoring_ionchannels()
         self.scoring_neurons()
         self.scoring_muscles()
         P.disconnect()
-        print "scores calculated"
+        print('scores calculated')

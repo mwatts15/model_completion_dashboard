@@ -15,13 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from views import Landing, SearchSuggestion
+from .views import Landing, SearchSuggestion
 
 
 urlpatterns = [
-
     url(r'^landing$', Landing, name='landing'),
     url(r'^channel$', Landing, name='channels'),
-    url(r'^getsuggestions$',SearchSuggestion.as_view(),name="getsuggestions"),
-
+    url(r'^getsuggestions$', SearchSuggestion.as_view(), name="getsuggestions"),
 ]

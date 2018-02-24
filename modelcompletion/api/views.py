@@ -1,9 +1,6 @@
-from django.http import Http404
 from django.views.generic import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from random import randint
 import PyOpenWorm as P
 import csv
 import os
@@ -13,7 +10,10 @@ from django.http import HttpResponse
 from django.conf import settings
 from modelcompletion.models import Neuron as N,IonChannel as IC,Muscle as M
 from .serializers import NeuronSerializer,ChannelSerializer, MuscleSerializer, CellSerializer, NeuronDetailSerializer, MuscleDetailSerializer,IonChannelSerializer,ChannelDetailSerializer
+import logging
 
+
+LOGGER = logging.Logger(__name__)
 
 
 class Neuron(object):
@@ -102,7 +102,7 @@ class AllNeurons(APIView):
             for neuron in P.Neuron().load():
                     Neurons.append(Neuron(name=str(neuron.name())))
         finally:
-            print "done"
+            LOGGER.debug("done")
         Neurons.sort(key=operator.attrgetter('name'))
         serializer = NeuronSerializer(Neurons, many=True)
         return Response(serializer.data)
@@ -116,7 +116,7 @@ class AllMuscles(APIView):
             for muscle in P.Muscle().load():
                 Muscles.append(Muscle(name=str(muscle.name())))
         finally:
-            print "done"
+            LOGGER.debug("done")
         serializer = MuscleSerializer(Muscles, many=True)
         return Response(serializer.data)
 
@@ -131,7 +131,7 @@ class BodyMuscles(APIView):
             for row in file_reader:
                 Bodymuscles.append(Muscle(name = str(row["Body wall muscles"])))
         finally:
-            print "done"
+            LOGGER.debug("done")
 
         serializer= MuscleSerializer(Bodymuscles, many=True)
         return Response(serializer.data)
@@ -145,7 +145,7 @@ class AllIonChannels(APIView):
             for channel in P.Channel().load():
                 IonChannels.append(IonChannel(name=str(channel.name())))
         finally:
-            print "done"
+            LOGGER.debug("done")
         serializer = IonChannelSerializer(IonChannels, many=True)
         return Response(serializer.data)
 
@@ -161,7 +161,7 @@ class PharynxMuscles(APIView):
             for row in file_reader:
                 Pharynmuscles.append(Muscle(name = str(row["Pharynx muscles"]).upper()))
         finally:
-            print "done"
+            LOGGER.debug("done")
 
         serializer= MuscleSerializer(Pharynmuscles, many=True)
         return Response(serializer.data)
@@ -176,14 +176,14 @@ class AllCells(APIView):
             for muscle in P.Muscle().load():
                 Cells.append(Cell(name=str(muscle.name())))
         finally:
-            print "done"
+            LOGGER.debug("done")
         serializer = CellSerializer(Cells, many=True)
         return Response(serializer.data)
 
 class CellIonChannels(APIView):
 
     def get(self,request, format=None):
-        print "in cell channel get data set view"
+        LOGGER.debug("in cell channel get data set view")
         serializer_class = ChannelSerializer
         cellname = self.request.query_params.get('cellname', None)
         if cellname==None:
@@ -204,7 +204,7 @@ class CellIonChannels(APIView):
                 for ch in P.Muscle(name=str(cellname)).channel():
                     Channels.append(Channel(name=ch.name()))
         serializer = ChannelSerializer(Channels, many=True)
-        print serializer.data
+        LOGGER.debug(serializer.data)
         return Response(serializer.data)
 
 
@@ -229,7 +229,7 @@ class FindCell(APIView):
             elif cellname in muscles:
                 muscle = P.Muscle(cellname)
                 serializer = MuscleDetailSerializer(MuscleDetail(muscle))
-        print serializer.data
+        LOGGER.debug(serializer.data)
         return Response(serializer.data)
 
 class FindChannel(APIView):
@@ -246,7 +246,7 @@ class FindChannel(APIView):
             if channelname in channels:
                 channel = P.Channel(channelname)
                 serializer = ChannelDetailSerializer(ChannelDetail(channel))
-        print serializer.data
+        LOGGER.debug(serializer.data)
         return Response(serializer.data)
 
 class SearchSuggestion(View):
